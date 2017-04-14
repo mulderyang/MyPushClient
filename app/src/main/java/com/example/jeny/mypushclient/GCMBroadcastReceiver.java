@@ -5,6 +5,7 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.BitmapFactory;
+import android.media.MediaPlayer;
 import android.support.v4.content.WakefulBroadcastReceiver;
 import android.support.v7.app.NotificationCompat;
 import android.util.Log;
@@ -21,7 +22,9 @@ import java.net.URLDecoder;
 public class GCMBroadcastReceiver extends WakefulBroadcastReceiver {
 	private static final String TAG = "GCMBroadcastReceiver";
 	public static final int NOTIFICATION_ID = 1;
-	
+
+	private MediaPlayer mediaPlayer;
+
 	@Override
 	public void onReceive(Context context, Intent intent) {		//상대방이 메시지 보낼때  intent의 부가적인 정보로 사용
 		String action = intent.getAction();
@@ -44,6 +47,9 @@ public class GCMBroadcastReceiver extends WakefulBroadcastReceiver {
 				
 				// 액티비티로 전달
 				sendToActivity(context, from, command, type, data);
+
+				mediaPlayer = MediaPlayer.create(context, R.raw.engine_sound);
+				mediaPlayer.start();
 				
 			} else {
 				Log.d(TAG, "Unknown action : " + action);
@@ -75,7 +81,7 @@ public class GCMBroadcastReceiver extends WakefulBroadcastReceiver {
 
 		Toast.makeText(context, data, Toast.LENGTH_LONG).show();
 
-		sendNotification(context, intent);
+		sendNotification(context, intent, data);
 
 	}
 
@@ -83,7 +89,7 @@ public class GCMBroadcastReceiver extends WakefulBroadcastReceiver {
 	/**
 	 * Send a sample notification using the NotificationCompat API.
 	 */
-	public void sendNotification(Context context, Intent intent) {
+	public void sendNotification(Context context, Intent intent, String data) {
 
 		// BEGIN_INCLUDE(build_action)
 		/** Create an intent that will be fired when the user clicks the notification.
@@ -102,6 +108,13 @@ public class GCMBroadcastReceiver extends WakefulBroadcastReceiver {
 		//NotificationCompat.Builder builder = new NotificationCompat.Builder(this);
 		NotificationCompat.Builder builder = new NotificationCompat.Builder(context);
 
+
+		/* LED 왜 안 되는지 모르겠다
+		builder.setDefaults(Notification.DEFAULT_LIGHTS);
+		builder.setLights(Color.GREEN, 2000, 2000);
+		*/
+
+
 		/** Set the icon that will appear in the notification bar. This icon also appears
 		 * in the lower right hand corner of the notification itself.
 		 *
@@ -118,6 +131,12 @@ public class GCMBroadcastReceiver extends WakefulBroadcastReceiver {
 		// Set the notification to auto-cancel. This means that the notification will disappear
 		// after the user taps it, rather than remaining until it's explicitly dismissed.
 		builder.setAutoCancel(true);
+
+		// 진동은 안 되네
+		long[] pattern = {0, 1000};
+		builder.setVibrate(pattern);
+
+
 
 		/**
 		 *Build the notification's appearance.
@@ -138,7 +157,7 @@ public class GCMBroadcastReceiver extends WakefulBroadcastReceiver {
 		 */
 		builder.setContentTitle("BetheRacer");
 		builder.setContentText("Time to Drive");
-		builder.setSubText("Tap to Race");
+		builder.setSubText(data);
 
 		// END_INCLUDE (build_notification)
 

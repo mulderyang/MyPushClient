@@ -163,7 +163,8 @@ public class MainActivity extends AppCompatActivity {
 
         super.onNewIntent(intent);
     }
-
+    // onNewIntent( ) 는 startActivity( ) 에 의해 callback 된다.
+    // 그러나, 나는 startActivity() 를 쓰지 않기 때문에 여기 onNewIntent() 는 쓰이지 않는다.
 
     /**
      * 수신자로부터 전달받은 Intent 처리
